@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 interface BioLink {
   id: number;
@@ -7,10 +7,16 @@ interface BioLink {
   descriptionen?: string;
   descriptionth?: string;
   icon?: string;
+  imageUrl?: string;
 }
 
-const BioLayout: React.FC = () => {
+const BioLayout: React.FC = React.memo(() => {
   const [activeCard, setActiveCard] = useState<number | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+
+  const handleImageError = useCallback((id: number) => {
+    setImageErrors(prev => ({ ...prev, [id]: true }));
+  }, []);
 
   const bioLinks: BioLink[] = [
     {
@@ -19,7 +25,7 @@ const BioLayout: React.FC = () => {
       url: "https://www.youtube.com/@shoperteam2788",
       descriptionen: "- When we come together, everything is possible.-",
       descriptionth: "- เมื่อเรารวมกัน ทุกอย่างก็เป็นไปได้ -",
-      icon: "💼"
+      imageUrl: "shoperteam.webp"
     },
     {
       id: 2,
@@ -27,7 +33,7 @@ const BioLayout: React.FC = () => {
       url: "https://shopergamer.vercel.app/",
       descriptionen: "- Daily learning shapes a brighter tomorrow -",
       descriptionth: "- การเรียนรู้ทุกวันสร้างอนาคตที่สดใสยิ่งขึ้น -",
-      icon: "🎮"
+      imageUrl: "shopergamer.webp"
     },
     {
       id: 3,
@@ -35,7 +41,7 @@ const BioLayout: React.FC = () => {
       url: "https://charifkub.vercel.app/",
       descriptionen: "- On the day I achieve success, I will not forget those who have supported me -",
       descriptionth: "- ในวันที่ฉันประสบความสำเร็จ ฉันจะไม่ลืมคนที่ซัพพอร์ตฉัน -",
-      icon: "⭐"
+      imageUrl: "charifkub.webp"
     },
     {
       id: 4,
@@ -43,7 +49,7 @@ const BioLayout: React.FC = () => {
       url: "https://linkbio.co/shopercat",
       descriptionen: "- The past is the most valuable lesson. -",
       descriptionth: "- อดีตคือบทเรียนอันล้ำค่าที่สุด -",
-      icon: "🐱"
+      imageUrl: "shopercat.webp"
     },
     {
       id: 5,
@@ -51,7 +57,7 @@ const BioLayout: React.FC = () => {
       url: "https://linkbio.co/animexo1234",
       descriptionen: "- Art and AI A Perfect Collaboration -",
       descriptionth: "- ศิลปะ และ AI ความร่วมมือที่สมบูรณ์แบบ -",
-      icon: "🎨"
+      imageUrl: "animexo.webp"
     },
     {
       id: 6,
@@ -59,7 +65,7 @@ const BioLayout: React.FC = () => {
       url: "https://www.blockdit.com/nature",
       descriptionen: "Connecting with the natural world",
       descriptionth: "เชื่อมต่อกับโลกธรรมชาติ",
-      icon: "🌿"
+      imageUrl: "nature.webp"
     },
     {
       id: 7,
@@ -67,7 +73,7 @@ const BioLayout: React.FC = () => {
       url: "https://www.blockdit.com/watermelonxo",
       descriptionen: "- Justice is the light that darkness cannot overcome -",
       descriptionth: "- ความยุติธรรมคือแสงสว่างที่ความมืดไม่สามารถเอาชนะได้ -",
-      icon: "🍉"
+      imageUrl: "watermelon.webp"
     },
     {
       id: 8,
@@ -75,7 +81,7 @@ const BioLayout: React.FC = () => {
       url: "https://youtube.com/playlist?list=PLwAlfD3gBZEyvyvuB-9ehJWoLLJt_nmkq&si=3VS7rpFB463LwWS_",
       descriptionen: "Funny and entertaining content",
       descriptionth: "เนื้อหาสนุกสนานและบันเทิง",
-      icon: "😂"
+      imageUrl: "shopermeme.webp"
     },
     {
       id: 9,
@@ -83,7 +89,7 @@ const BioLayout: React.FC = () => {
       url: "https://youtube.com/playlist?list=PLwAlfD3gBZEwc0E89YmCJC9n4JHd3QJgk&si=qMNpGo8z0iZoHWf7",
       descriptionen: "Short format content",
       descriptionth: "เนื้อหารูปแบบสั้น",
-      icon: "📱"
+      imageUrl: "shopermini.webp"
     },
     {
       id: 10,
@@ -91,7 +97,7 @@ const BioLayout: React.FC = () => {
       url: "https://youtube.com/playlist?list=PLwAlfD3gBZEwqLcY2Qe_o4k-u3KKat5P5&si=CSSaRwWA-AbeC4In",
       descriptionen: "Copyright information series",
       descriptionth: "ซีรีย์ข้อมูลลิขสิทธิ์",
-      icon: "📝"
+      imageUrl: "shopercopyright.webp"
     },
     {
       id: 11,
@@ -99,7 +105,7 @@ const BioLayout: React.FC = () => {
       url: "https://youtube.com/playlist?list=PLwAlfD3gBZEw4yhsKnu8X3q8T0JZXkkOA&si=xbTWo6rfuUzsb4xO",
       descriptionen: "Copyright information series",
       descriptionth: "ซีรีย์ข้อมูลลิขสิทธิ์",
-      icon: "📘"
+      imageUrl: "shopercopyright.webp"
     },
     {
       id: 12,
@@ -107,12 +113,12 @@ const BioLayout: React.FC = () => {
       url: "https://youtube.com/playlist?list=PLwAlfD3gBZExFLNjlzuaFT7p91Jcx3QB5&si=Q0nczxvVV6RQ8lRA",
       descriptionen: "Copyright information series",
       descriptionth: "ซีรีย์ข้อมูลลิขสิทธิ์",
-      icon: "📗"
+      imageUrl: "shopercopyright.webp"
     }
   ];
 
   return (
-    <section id="links" className="py-16 bg-gradient-to-b from-blue-50 to-white">
+    <section  id="team"  className="py-16 bg-gradient-to-b from-blue-50 to-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-blue-800 mb-4">สมาชิกของ Shoper Team</h2>
         <p className="text-center text-blue-600 mb-10 max-w-2xl mx-auto">
@@ -130,10 +136,22 @@ const BioLayout: React.FC = () => {
               <a
                 href={link.url}
                 target="_blank"
-                rel="noopener noreferrer"
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-2xl text-white shadow-lg transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
+                rel="noopener noreferrer nofollow"
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-2xl text-white shadow-lg transition-all duration-300 transform hover:scale-110 hover:shadow-2xl overflow-hidden"
               >
-                {link.icon}
+                {link.imageUrl && !imageErrors[link.id] ? (
+                  <img 
+                    src={link.imageUrl} 
+                    alt={link.title}
+                    className="w-full h-full object-cover"
+                    onError={() => handleImageError(link.id)}
+                    loading="lazy"
+                    width={80}
+                    height={80}
+                  />
+                ) : (
+                  <span>{link.icon}</span>
+                )}
               </a>
               
               {/* Card that appears on hover */}
@@ -160,7 +178,7 @@ const BioLayout: React.FC = () => {
                   <a 
                     href={link.url} 
                     target="_blank" 
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer nofollow"
                     className="inline-block px-4 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
                   >
                     Visit Channel
@@ -177,6 +195,6 @@ const BioLayout: React.FC = () => {
       </div>
     </section>
   );
-};
+});
 
 export default BioLayout;

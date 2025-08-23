@@ -7,15 +7,18 @@ interface LinkCardProps {
   icon?: string;
 }
 
-const LinkCard: React.FC<LinkCardProps> = ({ title, url, description, icon }) => {
+const LinkCard: React.FC<LinkCardProps> = React.memo(({ title, url, description, icon }) => {
   const handleClick = () => {
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
     <div 
       className="bg-white p-5 rounded-lg shadow-sm border border-blue-100 hover:shadow-md transition-shadow cursor-pointer"
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyPress={(e) => e.key === 'Enter' && handleClick()}
     >
       <div className="flex items-center">
         {icon && (
@@ -35,6 +38,6 @@ const LinkCard: React.FC<LinkCardProps> = ({ title, url, description, icon }) =>
       </div>
     </div>
   );
-};
+});
 
 export default LinkCard;
