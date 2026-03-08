@@ -1,8 +1,8 @@
+// src/compo/Header.tsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { navItems } from '../data';
 
-interface HeaderProps {
-  isScrolled?: boolean;
-}
+interface HeaderProps { isScrolled?: boolean; }
 
 const Header: React.FC<HeaderProps> = React.memo(({ isScrolled = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,149 +10,97 @@ const Header: React.FC<HeaderProps> = React.memo(({ isScrolled = false }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['home', 'videos', 'team', 'showcase', 'contact'];
       const scrollPosition = window.scrollY + 100;
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
+      for (const item of navItems) {
+        const element = document.getElementById(item.id);
         if (element) {
           const offsetTop = element.offsetTop;
           const offsetBottom = offsetTop + element.offsetHeight;
-          
           if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
-            setActiveSection(section);
+            setActiveSection(item.id);
             break;
           }
         }
       }
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMenu = useCallback(() => {
-    setIsMenuOpen(!isMenuOpen);
-  }, [isMenuOpen]);
-
-  const closeMenu = useCallback(() => {
-    setIsMenuOpen(false);
-  }, []);
-
+  const toggleMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
   const scrollToSection = useCallback((sectionId: string) => {
     const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (element) { element.scrollIntoView({ behavior: 'smooth' }); }
     closeMenu();
   }, [closeMenu]);
 
   return (
     <>
-      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' : 'bg-gradient-to-r from-blue-800/95 to-indigo-700/95 py-3'}`}>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/90 backdrop-blur-lg shadow-sm py-3' : 'bg-transparent py-5'}`}>
         <div className="container mx-auto px-4 flex justify-between items-center">
-          {/* Logo */}
-          <div className="flex items-center">
-            <div className="text-xl font-bold text-white tracking-wide flex items-center">
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-2 rounded-lg mr-2 shadow-md">
-                <img src="shoperteam.webp" alt="Shoper Team Logo" className="h-10 w-10 rounded-xl" loading="eager"/>
+          <a href="#home" className="flex items-center cursor-pointer" onClick={(e) => { e.preventDefault(); scrollToSection('home'); }}>
+            <div className="text-2xl font-black tracking-tight flex items-center">
+              <div className={`p-1.5 rounded-xl mr-3 shadow-lg transition-colors duration-500 ${isScrolled ? 'bg-gradient-to-br from-blue-600 to-indigo-700' : 'bg-white'}`}>
+                <img 
+                  src="/shoperteam.webp" alt="Shoper Team Logo" 
+                  className="h-9 w-9 rounded-lg object-cover" 
+                  width="36" height="36" loading="eager" fetchPriority="high"
+                />
              </div>
-              <span className={`transition-all ${isScrolled ? 'text-blue-800' : 'text-white'}`}>Shoper Team</span>
+              <span className={`transition-colors duration-500 ${isScrolled ? 'text-indigo-900' : 'text-blue-900 drop-shadow-sm'}`}>
+                Shoper <span className={isScrolled ? 'text-blue-600' : 'text-indigo-700'}>Team</span>
+              </span>
             </div>
-          </div>
+          </a>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:block">
-            <ul className="flex space-x-1">
-              {[
-                { id: 'home', label: 'Home' },
-                { id: 'videos', label: 'Videos' },
-                { id: 'team', label: 'Our Team' },
-                { id: 'showcase', label: 'Showcase' }
-              ].map((item) => (
+          <nav className="hidden md:block" aria-label="Main Navigation">
+            <ul className="flex space-x-2 bg-white/50 backdrop-blur-md px-2 py-1.5 rounded-full shadow-sm border border-white/20">
+              {navItems.map((item) => (
                 <li key={item.id}>
-                  <button
-                    onClick={() => scrollToSection(item.id)}
-                    className={`px-4 py-2 rounded-full font-medium transition-all duration-300 flex items-center ${
-                      activeSection === item.id
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : isScrolled
-                        ? 'text-blue-800 hover:text-blue-600 hover:bg-blue-50'
-                        : 'text-white/90 hover:text-white hover:bg-white/10'
-                    }`}
+                  <a
+                    href={`#${item.id}`} onClick={(e) => { e.preventDefault(); scrollToSection(item.id); }}
+                    className={`px-5 py-2 rounded-full font-semibold text-sm transition-all duration-300 flex items-center ${activeSection === item.id ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'text-indigo-900 hover:text-blue-600 hover:bg-white/80'}`}
                   >
                     {item.label}
-                    {activeSection === item.id && (
-                      <span className="ml-2 w-2 h-2 bg-white rounded-full"></span>
-                    )}
-                  </button>
+                  </a>
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Mobile Menu Button */}
           <button
-            onClick={toggleMenu}
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              isScrolled ? 'text-blue-800 hover:bg-blue-100' : 'text-white hover:bg-white/10'
-            }`}
-            aria-label="Toggle menu"
+            onClick={toggleMenu} aria-expanded={isMenuOpen} aria-label={isMenuOpen ? "ปิดเมนู" : "เปิดเมนู"}
+            className={`md:hidden p-2.5 rounded-xl transition-colors backdrop-blur-md shadow-sm ${isScrolled ? 'bg-blue-50 text-blue-800' : 'bg-white/80 text-blue-900'}`}
           >
             {isMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16m-7 6h7" /></svg>
             )}
           </button>
         </div>
 
-        {/* Mobile Navigation Menu */}
-        <div
-          className={`md:hidden bg-white shadow-xl rounded-b-2xl overflow-hidden transition-all duration-500 ${
-            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="container mx-auto px-4 py-3">
-            <ul className="space-y-2">
-              {[
-                { id: 'home', label: 'Home' },
-                { id: 'videos', label: 'Videos' },
-                { id: 'team', label: 'Our Team' },
-                { id: 'showcase', label: 'Showcase' }
-              ].map((item) => (
+        <nav aria-label="Mobile Navigation" className={`md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl shadow-2xl overflow-hidden transition-all duration-500 ease-in-out border-t border-gray-100 ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="container mx-auto px-6 py-6">
+            <ul className="space-y-3">
+              {navItems.map((item) => (
                 <li key={item.id}>
-                  <button
-                    onClick={() => scrollToSection(item.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all flex items-center ${
-                      activeSection === item.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                  <a
+                    href={`#${item.id}`} onClick={(e) => { e.preventDefault(); scrollToSection(item.id); }}
+                    className={`w-full text-left px-5 py-4 rounded-xl font-bold transition-all flex items-center justify-between ${activeSection === item.id ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100' : 'text-gray-600 hover:bg-gray-50'}`}
                   >
                     {item.label}
-                    {activeSection === item.id && (
-                      <span className="ml-2 w-2 h-2 bg-blue-600 rounded-full"></span>
-                    )}
-                  </button>
+                    {activeSection === item.id && <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>}
+                  </a>
                 </li>
               ))}
             </ul>
           </div>
-        </div>
+        </nav>
       </header>
 
-      {/* Overlay when mobile menu is open */}
-      {isMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 md:hidden"
-          onClick={closeMenu}
-        ></div>
-      )}
+      {isMenuOpen && <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden transition-opacity" onClick={closeMenu} aria-hidden="true"></div>}
     </>
   );
 });

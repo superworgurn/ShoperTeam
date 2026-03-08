@@ -1,0 +1,4 @@
+# Website: https://shoperteam.vercel.app/
+
+User-agent: *
+Allow: /

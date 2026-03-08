@@ -1,178 +1,188 @@
-// App.tsx
-import React, { useState, useEffect, useRef } from 'react';
+// src/App.tsx
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import Header from './compo/Header';
-import BioLayout from './compo/BioLayout';
+import FadeIn from './compo/FadeIn';
+import { videoPlaylists, showcaseItems } from './data';
 
-const App: React.FC = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+const BioLayout = lazy(() => import('./compo/BioLayout'));
 
-  // Video Slider State
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const videoSliderRef = useRef<HTMLDivElement>(null);
-
-  // Showcase Slider State
-  const [currentShowcaseIndex, setCurrentShowcaseIndex] = useState(0);
-  const showcaseSliderRef = useRef<HTMLDivElement>(null);
+const LazyIframe: React.FC<{ src: string; title: string; isDragging: boolean }> = ({ src, title, isDragging }) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    
-    // ซ่อน loading screen เมื่อแอปโหลดเสร็จ
-    if (typeof document !== 'undefined') {
-      document.body.classList.add('loaded');
-    }
-    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsIntersecting(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' } 
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="group relative w-full h-full rounded-2xl overflow-hidden bg-slate-200 shadow-lg transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] border-4 border-white">
+      {isDragging && <div className="absolute inset-0 z-10" />}
+      {!isLoaded && isIntersecting && (
+        <div className="absolute inset-0 flex items-center justify-center bg-blue-50 animate-pulse">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      {isIntersecting && (
+        <iframe 
+          className={`w-full h-full transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          src={src} 
+          title={`วิดีโอแนะนำ: ${title}`} 
+          onLoad={() => setIsLoaded(true)}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowFullScreen 
+          loading="lazy" 
+        />
+      )}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+    </div>
+  );
+};
+
+const useDraggableScroll = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - ref.current.offsetLeft);
+    setScrollLeft(ref.current.scrollLeft);
+  };
+  const onMouseLeave = () => setIsDragging(false);
+  const onMouseUp = () => setIsDragging(false);
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !ref.current) return;
+    e.preventDefault();
+    const walk = (e.pageX - ref.current.offsetLeft - startX) * 2;
+    ref.current.scrollLeft = scrollLeft - walk;
+  };
+
+  return { ref, isDragging, events: { onMouseDown, onMouseLeave, onMouseUp, onMouseMove } };
+};
+
+const App: React.FC = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const videoSlider = useDraggableScroll();
+  const showcaseSlider = useDraggableScroll();
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
     checkIsMobile();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', checkIsMobile);
-    window.addEventListener('scroll', handleScroll);
-    
     return () => {
-      window.removeEventListener('resize', checkIsMobile);
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', checkIsMobile);
     };
   }, []);
 
-  // ข้อมูลวิดีโอ
-  const videoPlaylists = [
-    { id: 1, src: "https://www.youtube-nocookie.com/embed/videoseries?list=PLAmmJmTX1UDA60iCwln4FqAgXAQHybelq", 
-      title: "Shoper Team Playlist 1" },
-    { id: 2, src: "https://www.youtube-nocookie.com/embed/videoseries?list=PL6475yVcKBeKWCb70dAPu2Uxd7_VY7nw9", 
-      title: "Shoper Team Playlist 2" },
-    { id: 3, src: "https://www.youtube-nocookie.com/embed/videoseries?si=sxDvlTxRvT9rRsAY&amp;list=PLt7bGzU_AlQpcU3RqZnLOHTO_YP1Y6r4a", 
-      title: "Shoper Team Playlist 3" },
-    { id: 4, src: "https://www.youtube-nocookie.com/embed/videoseries?si=3pStiVZr90z8H5MH&amp;list=PLn9b5l_mIoaxlp_hHFDhimq8IA-eRKMvm", 
-      title: "Shoper Team Playlist 4" },
-    { id: 5, src: "https://www.youtube-nocookie.com/embed/videoseries?si=q7EtbOGAZnOoNZ35&amp;list=PLn9b5l_mIoayda1Kms9MqR5k9RAHuEvPq", 
-      title: "Shoper Team Playlist 5" },
-    { id: 6, src: "https://www.youtube-nocookie.com/embed/videoseries?si=TELh_VWQi1WJ1Xf7&amp;list=PLn9b5l_mIoaz--_FiBSOc-Lx770_rSBB4", 
-      title: "Shoper Team Playlist 6" },
-  ];
-
-  // ข้อมูล Show Case (รูปภาพผลงาน)
-  const showcaseItems = [
-    { id: 1, img: "https://t1.blockdit.com/photos/2025/08/68a7ecb34bea27541107d39a_800x0xcover_Gmc6Ex9b.jpg", 
-      title: "LinkLift", desc: "เครื่องมือถอดรหัส URL ฟรีที่ช่วยแปลง encoded URL เป็นรูปแบบปกติพร้อมแสดงตัวอย่างหน้าเว็บ ✨ คุณสมบัติ🔓 ถอดรหัส URL ที่ถูกเข้ารหัส👀 แสดงพรีวิวเว็บไซต์ก่อนเข้าชม📱 ออกแบบมาให้ใช้งานง่ายทั้งบนมือถือและเดสก์ท็อป🌐 รองรับสองภาษา (ไทยและอังกฤษ)🔒 ปลอดภัย 100% - ไม่มีการเก็บข้อมูล URL📋 คัดลอก URL หลังถอดรหัสได้ทันที",
-      link:"https://github.com/ShoperGamer/-LinkLift"},
-    { id: 2, img: "https://yt3.ggpht.com/eKJHphggazTNduWB1GH3sVAkkylMSuW0tGlYf2f_1KtXvItCGgU1Gr2B78xIjuEYn55VYnyeWk2W0g=s1600-nd-v1-rwa", 
-      title: "AuraTime", desc: "AuraTime คือเว็บแอปพลิเคชันนาฬิกาที่ออกแบบมาอย่างสวยงามและครอบคลุมทุกฟังก์ชันการใช้งาน ไม่ว่าจะเป็นการตั้งปลุกในชีวิตประจำวัน, การจับเวลาทำงาน, หรือดูเวลาทั่วโลก โปรเจกต์นี้สร้างขึ้นด้วย HTML, CSS, และ JavaScript ล้วนๆ ทำให้เป็นโปรเจกต์ที่เบา, รวดเร็ว, และสามารถเปิดใช้งานได้บนทุกเว็บเบราว์เซอร์โดยไม่ต้องติดตั้งอะไรเพิ่มเติม",
-      link:"https://github.com/ShoperGamer/AuraTime" },
-    { id: 3, img: "https://yt3.ggpht.com/XzPyHnUhKTJ5yD8tVTNZaesv_YzYpSAU6ZmRd-rVsVyvvPvPK7-LDLLWqN_p045Pj4cMaqFavbyl=s1600-rw-nd-v1", 
-      title: "Simple-Image-Converter", desc: "ยินดีต้อนรับสู่ Simple Image Converter! 👋 โปรเจกต์นี้คือเว็บแอปพลิเคชันที่สร้างขึ้นเพื่อแก้ปัญหาความยุ่งยาก, ข้อจำกัด, และการสิ้นเปลืองทรัพยากรและเวลาในการแปลงไฟล์รูปภาพและ PDF 🚀 ด้วย Simple Image Converter คุณสามารถแปลงรูปภาพเป็นนามสกุลต่างๆ หรือรวมรูปภาพและ PDF หลายไฟล์ให้เป็น PDF เดียวได้อย่างง่ายดายและรวดเร็ว",
-      link: "https://github.com/ShoperGamer/Simple-Image-Converter"},
-    { id: 4, img: "https://yt3.ggpht.com/4ed5k4p9IIcDhWZiOqSvQqADRHR1ihVp3ZXlJTCNKaywqo8dtyTooLdomE5g0OEOdTy90TMoVlHmwg=s880-c-fcrop64=1,44460000bbb9ffff-rw-nd-v1", 
-      title: "SlicePix", desc: "เว็บแอปพลิเคชันโอเพนซอร์สที่ช่วยให้คุณ ✂️ แบ่งภาพถ่ายออกเป็นส่วนย่อย ๆ ได้อย่างง่ายดายและรวดเร็ว ไม่ว่าจะเป็นการสร้างภาพ Grid สำหรับ Instagram หรือเตรียมภาพสำหรับเว็บไซต์",
-      link: "https://github.com/ShoperGamer/SlicePix" },
-  ];
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Video Slider Controls
-  const nextVideo = () => setCurrentVideoIndex(prev => prev === videoPlaylists.length - 1 ? 0 : prev + 1);
-  const prevVideo = () => setCurrentVideoIndex(prev => prev === 0 ? videoPlaylists.length - 1 : prev - 1);
-
-  // Showcase Slider Controls
-  const nextShowcase = () => setCurrentShowcaseIndex(prev => prev === showcaseItems.length - 1 ? 0 : prev + 1);
-  const prevShowcase = () => setCurrentShowcaseIndex(prev => prev === 0 ? showcaseItems.length - 1 : prev - 1);
-
-  // Slider Scroll Effect
-  useEffect(() => {
-    if (videoSliderRef.current) {
-      const slideWidth = isMobile ? videoSliderRef.current.offsetWidth : videoSliderRef.current.offsetWidth / 2;
-      videoSliderRef.current.scrollTo({ left: currentVideoIndex * slideWidth, behavior: 'smooth' });
-    }
-  }, [currentVideoIndex, isMobile]);
-
-  useEffect(() => {
-    if (showcaseSliderRef.current) {
-      const slideWidth = isMobile ? showcaseSliderRef.current.offsetWidth : showcaseSliderRef.current.offsetWidth / 2;
-      showcaseSliderRef.current.scrollTo({ left: currentShowcaseIndex * slideWidth, behavior: 'smooth' });
-    }
-  }, [currentShowcaseIndex, isMobile]);
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 overflow-x-hidden">
       <Header isScrolled={isScrolled} />
+      
       <main className="flex-grow">
-        <section id="home" className="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 relative overflow-hidden">
-          <div className="container mx-auto px-4 text-center relative z-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-blue-800 mb-6">Shoper <span className="text-indigo-600">Team</span></h1>
-            <p className="text-lg text-blue-700/90 mb-4">- When we come together, everything is possible. -</p>
-             <p className="text-lg text-blue-700/90 mb-4">- เมื่อเรารวมกัน ทุกอย่างก็เป็นไปได้ -</p>
+        <section id="home" className="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 relative flex items-center min-h-[50vh]">
+          <div className="container mx-auto px-4 text-center">
+            <FadeIn>
+              <h1 className="text-4xl md:text-6xl font-extrabold text-blue-800 mb-6">
+                Shoper <span className="text-indigo-600">Team</span>
+              </h1>
+              <p className="text-xl text-blue-700/90 mb-2 font-medium">- When we come together, everything is possible. -</p>
+              <p className="text-lg text-blue-600/80">- เมื่อเรารวมกัน ทุกอย่างก็เป็นไปได้ -</p>
+            </FadeIn>
           </div>
         </section>
 
-        {/* Video Slider Section */}
-        <section id="videos" className="py-16 bg-white">
+        <section id="videos" className="py-20 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-blue-800 mb-8">วิดีโอแนะนำ</h2>
-            <div className="relative">
-              <div ref={videoSliderRef} className="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth">
+            <FadeIn><h2 className="text-3xl font-bold text-center text-blue-800 mb-10">วิดีโอแนะนำ</h2></FadeIn>
+            <div className="relative group">
+              <div 
+                ref={videoSlider.ref} {...videoSlider.events}
+                className={`flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-8 px-4 ${videoSlider.isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
+                style={{ scrollBehavior: videoSlider.isDragging ? 'auto' : 'smooth' }}
+              >
                 {videoPlaylists.map((video) => (
-                  <div key={video.id} className={`flex-shrink-0 w-full ${isMobile ? '' : 'md:w-1/2'} p-4 snap-start`}>
-                    <iframe className="w-full aspect-video rounded-lg shadow-lg" src={video.src} title={video.title} allowFullScreen />
+                  <div key={video.id} className="flex-shrink-0 w-[85%] md:w-[45%] snap-center aspect-video">
+                    <LazyIframe src={video.src} title={video.title} isDragging={videoSlider.isDragging} />
                   </div>
                 ))}
               </div>
-              <button onClick={prevVideo} className="absolute top-1/2 -left-6 bg-white rounded-full shadow-md p-3">◀</button>
-              <button onClick={nextVideo} className="absolute top-1/2 -right-6 bg-white rounded-full shadow-md p-3">▶</button>
             </div>
           </div>
         </section>
 
-        {/* Bio Layout */}
-        <BioLayout />
+        <Suspense fallback={<div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+          <BioLayout />
+        </Suspense>
 
-        {/* Showcase Section */}
-        <section id="showcase" className="py-16 bg-gradient-to-b from-indigo-50 to-blue-100">
+        <section id="showcase" className="py-20 bg-gradient-to-b from-indigo-50 to-blue-100">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-indigo-800 mb-8">Show Case</h2>
-            <div className="relative">
-              <div ref={showcaseSliderRef} className="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth">
-                {showcaseItems.map(item => (
-                  <div key={item.id} className={`flex-shrink-0 w-full ${isMobile ? '' : 'md:w-1/2'} p-4 snap-start`}>
-                    <div className="rounded-xl overflow-hidden shadow-xl bg-white group cursor-pointer" onClick={() => window.open(item.link, '_blank')}>
-                      <img src={item.img} alt={item.title} className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="p-5">
-                        <h3 className="text-xl font-semibold text-indigo-700 mb-2">{item.title}</h3>
-                        <p className="text-blue-600 line-clamp-2">{item.desc}</p>
-                        <div className="mt-3 text-sm text-indigo-500 font-medium flex items-center">
-                          คลิกเพื่อดูผลงาน
-                          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </div>
-                      </div>
+            <FadeIn><h2 className="text-3xl font-bold text-center text-indigo-800 mb-10">Showcase ผลงาน</h2></FadeIn>
+            <div 
+              ref={showcaseSlider.ref} {...(isMobile ? showcaseSlider.events : {})}
+              className={`flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-10 ${isMobile ? (showcaseSlider.isDragging ? 'cursor-grabbing select-none' : 'cursor-grab') : ''}`}
+              style={{ scrollBehavior: showcaseSlider.isDragging ? 'auto' : 'smooth' }}
+            >
+              {showcaseItems.map(item => (
+                <div key={item.id} className="flex-shrink-0 w-[80%] md:w-[35%] snap-center">
+                  <a 
+                    href={item.link} target="_blank" rel="noopener noreferrer" title={`ดูผลงาน ${item.title}`}
+                    className="bg-white rounded-3xl overflow-hidden shadow-xl h-full border border-white/60 transition-all duration-300 hover:translate-y-[-8px] hover:shadow-2xl cursor-pointer block"
+                    onClick={(e) => { if (isMobile && showcaseSlider.isDragging) e.preventDefault(); }}
+                  >
+                    <img 
+                      src={item.img} alt={`ตัวอย่างผลงาน ${item.title}`} 
+                      className="w-full h-56 object-cover pointer-events-none" 
+                      width="400" height="224" loading="lazy" decoding="async" 
+                    />
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-indigo-700 mb-2">{item.title}</h3>
+                      <p className="text-blue-600/80 line-clamp-3 text-sm">{item.desc}</p>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <button onClick={prevShowcase} className="absolute top-1/2 -left-6 bg-white rounded-full shadow-md p-3">◀</button>
-              <button onClick={nextShowcase} className="absolute top-1/2 -right-6 bg-white rounded-full shadow-md p-3">▶</button>
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         </section>
       </main>
 
-      {/* Scroll to Top */}
-      <div className="fixed bottom-6 right-6">
-        <button onClick={scrollToTop} className={`bg-blue-600 text-white w-14 h-14 rounded-full shadow-xl transition-all ${isScrolled ? '' : 'opacity-0 pointer-events-none'}`}>
-          ↑
-        </button>
-      </div>
-
-      {/* Footer */}
-      <footer className="py-12 bg-blue-900 text-white text-center">
-        <p>&copy; {new Date().getFullYear()} Shoper Team. All rights reserved.</p>
+      <footer className="bg-white border-t border-blue-100 py-10">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center">
+              <img src="/shoperteam.webp" alt="Shoper Team Logo" className="h-8 w-8 rounded-lg mr-3 object-cover" width="32" height="32" loading="lazy" decoding="async" />
+              <span className="text-lg font-bold text-indigo-900">Shoper <span className="text-blue-600">Team</span></span>
+            </div>
+            <div className="text-sm text-gray-500 font-medium">© {new Date().getFullYear()} Shoper Team. All rights reserved.</div>
+          </div>
+        </div>
       </footer>
+
+      <button 
+        onClick={scrollToTop} aria-label="เลื่อนกลับไปด้านบน"
+        className={`fixed bottom-6 right-6 bg-blue-600 text-white w-12 h-12 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center z-50 hover:bg-indigo-700 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" /></svg>
+      </button>
     </div>
   );
 };

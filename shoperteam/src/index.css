@@ -166,3 +166,14 @@ iframe {
 .bg-blue-600.scale-125 {
   animation: paginationBounce 0.5s ease;
 }
+
+/* เพิ่มใน src/index.css */
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
