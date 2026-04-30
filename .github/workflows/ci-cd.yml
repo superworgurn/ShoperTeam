@@ -1,0 +1,51 @@
+name: ShoperTeam CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # กำหนด working directory เนื่องจากโปรเจกต์อยู่ในโฟลเดอร์ย่อย
+        working-directory: ./shoperteam
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './shoperteam/package-lock.json'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Linting
+        # ใช้ eslint.config.js ที่อยู่ในโปรเจกต์
+        run: npm run lint --if-present
+
+      - name: Type Check
+        # ตรวจสอบ TypeScript ตาม tsconfig.app.json
+        run: npx tsc --noEmit
+
+      - name: Build Project
+        # สร้าง Production Build (โฟลเดอร์ dist)
+        run: npm run build
+
+  # Job เสริม: สำหรับ Deploy (เลือกเปิดใช้ตามแพลตฟอร์มที่ใช้)
+  deploy:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Status
+        run: echo "Code is validated and ready for deployment to Vercel/Self-hosting."
