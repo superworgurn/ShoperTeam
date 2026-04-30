@@ -109,4 +109,4 @@ Displays notable team projects such as:
 
 ---
 
-**© 2025 Shoper Team. All rights reserved.**
+**© 2026 Shoper Team. All rights reserved.**

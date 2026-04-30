@@ -135,7 +135,7 @@ const App: React.FC = () => {
 
         <section id="showcase" className="py-20 bg-gradient-to-b from-indigo-50 to-blue-100">
           <div className="container mx-auto px-4">
-            <FadeIn><h2 className="text-3xl font-bold text-center text-indigo-800 mb-10">Showcase ผลงาน</h2></FadeIn>
+            <FadeIn><h2 className="text-3xl font-bold text-center text-indigo-800 mb-10">ST Showcase</h2></FadeIn>
             <div 
               ref={showcaseSlider.ref} {...(isMobile ? showcaseSlider.events : {})}
               className={`flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-10 ${isMobile ? (showcaseSlider.isDragging ? 'cursor-grabbing select-none' : 'cursor-grab') : ''}`}
