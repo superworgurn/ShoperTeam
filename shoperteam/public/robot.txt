@@ -1,7 +1,0 @@
-# พัฒนาโดย Shoper Team
-
-User-agent: *
-Allow: /
-Disallow: /private/
-Disallow: /config/
-

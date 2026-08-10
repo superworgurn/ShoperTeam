@@ -164,8 +164,6 @@ const Nature: React.FC = () => {
             ))}
           </div>
 
-          
-
           <p
             className="text-center text-gray-400 text-xs mt-10 animate-fade-in"
             style={{ animationDelay: '1s' }}

@@ -178,7 +178,7 @@ const Shopermini: React.FC = () => {
         </div>
 
         <p className="text-center text-white/70 text-xs mt-8 drop-shadow">
-          © {new Date().getFullYear()} Shoper Mini. Copyright.
+          © {new Date().getFullYear()} Shoper Mini.
         </p>
       </div>
     </div>

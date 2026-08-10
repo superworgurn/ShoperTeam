@@ -1,0 +1,36 @@
+# Shoper Team
+
+> แหล่งรวมผลงานและวิดีโอสร้างสรรค์ เพราะเมื่อเรารวมกัน ทุกอย่างก็เป็นไปได้
+
+## About
+Shoper Team คือกลุ่มนักพัฒนาและนักสร้างสรรค์เนื้อหาที่หลากหลาย ทั้งเว็บแอปพลิเคชัน มीडia และโปรเจกต์โอเพนซอร์ส
+
+## Main Pages
+- [หน้าแรก](https://shoperteam.vercel.app/): หน้ารวมสมาชิกและผลงานทั้งหมด
+- [Shoper Cat](https://shoperteam.vercel.app/shopercat): เว็บแอปแบ่งภาพถ่ายออกเป็นส่วนย่อย
+- [Shoper Mini](https://shoperteam.vercel.app/shopermini): โปรเจกต์ขนาดเล็ก
+- [Shoper Meme](https://shoperteam.vercel.app/shopermeme): สร้างมีม
+- [Shoper Copyright](https://shoperteam.vercel.app/shopercopyright): ข้อมูลลิขสิทธิ์
+- [WaterMelon](https://shoperteam.vercel.app/watermelon): โปรเจกต์ WaterMelon
+- [Nature](https://shoperteam.vercel.app/nature): โปรเจกต์ Nature
+
+## Team Members
+- Shoper Gamer
+- Charifkub
+- Shoper Cat
+- Animexo
+- Nature
+- WaterMelon
+- Shoper Mini
+- Shoper Meme
+- Shoper Copyright
+
+## Projects
+- [SlicePix](https://github.com/ShoperGamer/SlicePix): เว็บแอปโอเพนซอร์สแบ่งภาพถ่าย
+- AuraTime: เว็บแอปนาฬิกาสวยงาม
+- LinkLift: เครื่องมือจัดการลิงก์
+- Simple Image Converter: แปลงรูปภาพ
+
+## Optional
+- [Sitemap](https://shoperteam.vercel.app/sitemap.xml)
+- [robots.txt](https://shoperteam.vercel.app/robots.txt)

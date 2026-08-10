@@ -146,6 +146,7 @@ const Shopermeme: React.FC = () => {
                     src={video.src}
                     title={video.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    loading="lazy"
                     allowFullScreen
                   ></iframe>
                 </div>
@@ -188,6 +189,7 @@ const Shopermeme: React.FC = () => {
               src={video.src}
               title={video.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              loading="lazy"
               allowFullScreen
             ></iframe>
             {/* ป้ายชื่อคลิปเล็ก ๆ */}
@@ -199,8 +201,8 @@ const Shopermeme: React.FC = () => {
 
       </div>
 
-              <p className="text-center text-gray/70 text-xs mt-8 drop-shadow">
-          © {new Date().getFullYear()} Shoper Mini. Copyright.
+        <p className="text-center text-gray/70 text-xs mt-8 drop-shadow">
+          © {new Date().getFullYear()} Shoper Mini.
         </p>
 
       {/* ========== 🎈 CSS แอนิเมชันทั้งหมด ========== */}

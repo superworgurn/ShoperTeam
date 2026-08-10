@@ -1,0 +1,21 @@
+# robots.txt for Shoper Team
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Allow all bots to access images and assets
+User-agent: *
+Allow: /*.webp$
+Allow: /*.jpg$
+Allow: /*.png$
+Allow: /*.css$
+Allow: /*.js$
+
+# Block specific bots if needed
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+

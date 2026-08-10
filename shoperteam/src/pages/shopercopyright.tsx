@@ -131,7 +131,7 @@ const Shopercopyright: React.FC = () => {
 
             <div className="pt-8 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
               <Link to="/" className="flex items-center justify-center w-full bg-[#064e3b]/40 backdrop-blur-md border-2 border-white/40 text-white py-4.5 rounded-2xl font-black hover:bg-[#064e3b]/60 shadow-lg transition-all active:scale-95">
-                กลับสู่หน้าหลัก SHOPER TEAM
+                กลับสู่หน้าหลัก Shoper Team
               </Link>
             </div>
           </div>
